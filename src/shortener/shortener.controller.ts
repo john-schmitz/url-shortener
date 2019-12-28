@@ -6,7 +6,7 @@ import { ShortnerUrlDTO } from './dto/shortnerUrl.dto';
 export class ShortenerController {
   constructor(private readonly shortenerService: ShortenerService) {}
   @Post()
-  shortner(@Body() shortnerUrlDTO: ShortnerUrlDTO) {
-    return { new_url: this.shortenerService.shortUrl(shortnerUrlDTO.url) };
+  async shortner(@Body() shortnerUrlDTO: ShortnerUrlDTO) {
+    return { new_url: await this.shortenerService.shortUrl(shortnerUrlDTO.url) };
   }
 }

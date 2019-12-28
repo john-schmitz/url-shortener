@@ -13,9 +13,9 @@ export class AppController {
   }
 
   @Get(':hash')
-  getDocs(@Res() response: Response, @Param() params) {
+  async getDocs(@Res() response: Response, @Param() params) {
     const hash = params.hash;
-    let url = this.shortenerService.getUrl(hash);
+    let url = await this.shortenerService.getUrl(hash);
 
     if (!url) {
       throw new NotFoundException('url nao nao encontrada');
