@@ -11,16 +11,16 @@ export class AppController {
   getInfo() {
     return { app_url: this.configService.get<string>('APP_URL') };
   }
-  
+
   @Get(':hash')
   getDocs(@Res() response: Response, @Param() params) {
-    let { hash } = params;
+    const hash = params.hash;
     let url = this.shortenerService.getUrl(hash);
 
-    if(!url) {
+    if (!url) {
       throw new NotFoundException('url nao nao encontrada');
     }
-    url = (url.indexOf('://') == -1) ? 'http://' + url : url;
+    url = (url.indexOf('://') === -1) ? 'http://' + url : url;
 
     return response.redirect(301, url);
   }

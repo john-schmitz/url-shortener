@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ShortenerService } from './shortener.service';
-import { ShortnerUrlDTO } from "./dto/shortnerUrl.dto";
+import { ShortnerUrlDTO } from './dto/shortnerUrl.dto';
 
 @Controller('shortener')
 export class ShortenerController {
