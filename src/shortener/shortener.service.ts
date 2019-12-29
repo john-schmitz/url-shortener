@@ -10,12 +10,12 @@ export class ShortenerService {
   constructor(
     private readonly configService: ConfigService,
     @InjectRepository(Slug)
-    private readonly slugRepository: Repository<Slug>) {
-  }
+    private readonly slugRepository: Repository<Slug>,
+  ) {}
 
   private async generateHash() {
     const hashUrl = randomBytes(10).toString('hex');
-    const slug = await this.slugRepository.findOne({ slug: hashUrl});
+    const slug = await this.slugRepository.findOne({ slug: hashUrl });
     if (slug) {
       return this.generateHash();
     }
@@ -32,10 +32,11 @@ export class ShortenerService {
     return `${this.configService.get<string>('APP_URL')}/${hashUrl}`;
   }
 
-  async getUrl(hashUrl: string): Promise<string | void> {
-    const slug = await this.slugRepository.findOne({slug: hashUrl});
-    if (slug) {
-      return slug.url;
-    }
+  async getSlugByHash(hashUrl: string): Promise<Slug | void> {
+    return this.slugRepository.findOne({ slug: hashUrl });
+  }
+
+  async sortSlugsByAccess() {
+    return this.slugRepository.find({ relations: ['access'], order: {}});
   }
 }

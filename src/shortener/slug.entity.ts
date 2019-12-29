@@ -1,5 +1,11 @@
-
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { Access } from '../access/access.entity';
 
 @Entity()
 export class Slug {
@@ -12,7 +18,12 @@ export class Slug {
   @Column({ length: 500 })
   slug: string;
 
+  @OneToMany(
+    type => Access,
+    access => access.slug,
+  )
+  accesses?: Access[];
+
   @CreateDateColumn()
   createdAt: Date;
-
 }

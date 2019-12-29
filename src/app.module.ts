@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './typeorm.config.service';
 import { ShortenerModule } from './shortener/shortener.module';
+import { AccessModule } from './access/access.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ShortenerModule } from './shortener/shortener.module';
       useClass: TypeOrmConfigService,
     }),
     ShortenerModule,
+    AccessModule,
   ],
   controllers: [AppController],
   providers: [AppService],
