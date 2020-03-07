@@ -1,29 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Slug } from './slug.entity';
+import { Repository } from 'typeorm';
+import * as shortId from 'shortid';
 
 @Injectable()
 export class ShortenerService {
-  constructor(private readonly configService: ConfigService) {
-    this.urls = new Map();
-  }
-  private urls: Map<string, string>;
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectRepository(Slug)
+    private readonly slugRepository: Repository<Slug>,
+  ) {}
 
-  private generateHash() {
-    const hashUrl = randomBytes(2).toString('hex');
-    if (this.urls.get(hashUrl)) {
-      return this.generateHash();
+  private async generateHash(recursion: number = 0): Promise<string> {
+    if (recursion >= 5) {
+        throw new HttpException('server error', 500);
+    }
+
+    const hashUrl = shortId.generate();
+    const slug = await this.slugRepository.findOne({ slug: hashUrl });
+    if (slug) {
+      return this.generateHash(recursion + 1);
     }
     return hashUrl;
   }
 
-  shortUrl(url: string) {
-    const hashUrl = this.generateHash();
-    this.urls.set(hashUrl, url);
+  async shortUrl(url: string) {
+    const hashUrl = await this.generateHash();
+    const slug = new Slug();
+    slug.slug = hashUrl;
+    slug.url = url;
+
+    await this.slugRepository.save(slug);
     return `${this.configService.get<string>('APP_URL')}/${hashUrl}`;
   }
 
-  getUrl(hashUrl: string): string | void {
-    return this.urls.get(hashUrl);
+  async getSlugByHash(hashUrl: string): Promise<Slug | void> {
+    return this.slugRepository.findOne({ slug: hashUrl });
+  }
+
+  async sortSlugsByAccess() {
+    return this.slugRepository.find({ relations: ['access'], order: {}});
   }
 }
