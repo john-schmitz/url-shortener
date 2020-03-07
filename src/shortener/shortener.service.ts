@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Slug } from './slug.entity';
 import { Repository } from 'typeorm';
+import * as shortId from 'shortid';
 
 @Injectable()
 export class ShortenerService {
@@ -13,11 +14,15 @@ export class ShortenerService {
     private readonly slugRepository: Repository<Slug>,
   ) {}
 
-  private async generateHash() {
-    const hashUrl = randomBytes(10).toString('hex');
+  private async generateHash(recursion: number = 0): Promise<string> {
+    if (recursion >= 5) {
+        throw new HttpException('server error', 500);
+    }
+
+    const hashUrl = shortId.generate();
     const slug = await this.slugRepository.findOne({ slug: hashUrl });
     if (slug) {
-      return this.generateHash();
+      return this.generateHash(recursion + 1);
     }
     return hashUrl;
   }

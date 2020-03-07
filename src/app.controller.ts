@@ -1,8 +1,6 @@
 import {
   Controller,
   Get,
-  Redirect,
-  Req,
   Param,
   NotFoundException,
   Res,
@@ -41,7 +39,7 @@ export class AppController {
       throw new NotFoundException('url nao nao encontrada');
     }
 
-    await this.accessSerice.incrementAccess(slug);
+    this.accessSerice.incrementAccess(slug);
 
     const url =
       slug.url.indexOf('://') === -1 ? 'http://' + slug.url : slug.url;
